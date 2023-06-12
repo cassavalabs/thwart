@@ -2,6 +2,8 @@
 
 ![dApp usage screenshot](docs/ui.PNG)
 
+## Use Cases
+
 When users interact with decentralized applications (dApps) like Forge, EvmoSwap, Li.finance, Orbit market, Tofu NFT and the rest, they may be required to grant them permission to spend their tokens and NFTs.
 
 According to the ERC20 and ERC721 standards these are called allowance and approvals respectively. The EVMOS blockchain also recently introduced a new stateful precompile which introduces a new form of allowance called authorization and generic authorization.
@@ -23,4 +25,6 @@ To revoke an approval on EVMOS blockchain using Thwart protocol, users will need
 
 Once users have revoked an authorization, allowance or approval, the dApp or spender will no longer be able to spend their tokens.
 
-Disclaimer: This is a project submission for the EVMOS EVM extension hackathon, all codes have not been fully tested and should not be used in production yet.
+## How We Built It
+
+## Experience Developing On EVMOS

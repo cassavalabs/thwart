@@ -8,6 +8,6 @@ async function bootstrap() {
   const listener = app.get(DsProcessorService);
   await listener.init();
   // await listener.start();
-  await app.listen(3001);
+  await app.listen(Number(process.env.SERVER_PORT));
 }
 bootstrap();
