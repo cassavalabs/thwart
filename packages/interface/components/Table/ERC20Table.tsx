@@ -1,6 +1,7 @@
-import { Link } from "@chakra-ui/next-js";
+import { Link } from '@chakra-ui/next-js';
 import {
   Avatar,
+  Box,
   Button,
   CardBody,
   CardFooter,
@@ -16,26 +17,27 @@ import {
   Thead,
   Tr,
   useDisclosure,
-} from "@chakra-ui/react";
-import { FaRegFileAlt, FaUnlink } from "react-icons/fa";
-import { useEffect, useState } from "react";
-import { Approval } from "@app/types";
-import { useSearchParams } from "next/navigation";
-import { isAddress } from "@ethersproject/address";
-import { formatUnits } from "@ethersproject/units";
-import { Tooltip } from "../Tooltip";
-import { useWeb3React } from "@web3-react/core";
-import { formateDate } from "@app/utils";
-import { useExplorer } from "@app/hooks";
-import RevokeModal from "@app/components/RevokeModal";
+} from '@chakra-ui/react';
+import { FaRegFileAlt, FaUnlink } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { Approval } from '@app/types';
+import { useSearchParams } from 'next/navigation';
+import { isAddress } from '@ethersproject/address';
+import { formatUnits } from '@ethersproject/units';
+import { Tooltip } from '../Tooltip';
+import { useWeb3React } from '@web3-react/core';
+import { formateDate } from '@app/utils';
+import { useExplorer } from '@app/hooks';
+import RevokeModal from '@app/components/RevokeModal';
 
 export default function ERC20Table() {
   const searchParams = useSearchParams();
-  const type = Number(searchParams.get("type"));
-  const search = String(searchParams.get("search"));
+  const type = Number(searchParams.get('type'));
+  const search = String(searchParams.get('search'));
 
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [revoke, setRevoke] = useState<Approval | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { account } = useWeb3React();
   const { getExplorerUrl } = useExplorer();
@@ -43,17 +45,21 @@ export default function ERC20Table() {
   useEffect(() => {
     const request = async () => {
       if (type && isAddress(search)) {
+        setIsLoading(true);
         const res = await fetch(`/api?type=${type}&search=${search}`);
         const result = await res.json();
 
         if (result.data) {
           setApprovals(result.data);
         }
+        setIsLoading(false);
       }
     };
 
     request();
   }, [search, type]);
+
+  const noRecords = approvals.length === 0 && !isLoading;
 
   return (
     <>
@@ -76,7 +82,7 @@ export default function ERC20Table() {
             <Tbody>
               {approvals?.map(({ contract, operator, ...approval }) => {
                 const name = contract?.name || approval.contractAddress;
-                const symbol = contract?.symbol || "";
+                const symbol = contract?.symbol || '';
                 const spender = operator?.name || approval.spender;
                 const date = approval.dateApproved
                   ? formateDate(approval.dateApproved)
@@ -84,7 +90,7 @@ export default function ERC20Table() {
                 const value = BigInt(approval?.value || 0);
                 const allowance = Number.isSafeInteger(value)
                   ? formatUnits(value, contract?.decimals || 18)
-                  : "Unlimited";
+                  : 'Unlimited';
 
                 const canRevoke = () => {
                   if (!account) return false;
@@ -96,8 +102,8 @@ export default function ERC20Table() {
                     <Td>
                       <Link
                         href={getExplorerUrl(
-                          "account",
-                          approval.contractAddress
+                          'account',
+                          approval.contractAddress,
                         )}
                         target="_blank"
                         textDecoration="none !important"
@@ -117,7 +123,7 @@ export default function ERC20Table() {
                     </Td>
                     <Td>
                       <Link
-                        href={getExplorerUrl("account", approval.spender)}
+                        href={getExplorerUrl('account', approval.spender)}
                         target="_blank"
                         textDecoration="none !important"
                       >
@@ -134,8 +140,8 @@ export default function ERC20Table() {
                         <Text>{allowance}</Text>
                         <Link
                           href={getExplorerUrl(
-                            "account",
-                            approval.contractAddress
+                            'account',
+                            approval.contractAddress,
                           )}
                           target="_blank"
                           textDecoration="none !important"
@@ -151,7 +157,7 @@ export default function ERC20Table() {
                     </Td>
                     <Td>
                       <Link
-                        href={getExplorerUrl("tx", approval.transactionHash)}
+                        href={getExplorerUrl('tx', approval.transactionHash)}
                         target="_blank"
                         textDecoration="none !important"
                       >
@@ -180,6 +186,17 @@ export default function ERC20Table() {
                   </Tr>
                 );
               })}
+              {noRecords && (
+                <Tr>
+                  <Td colSpan={6}>
+                    <Box bg="yellow.800" py="0.5rem">
+                      <Text textAlign="center" fontWeight={500}>
+                        No Token Approvals found for address
+                      </Text>
+                    </Box>
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           </Table>
         </TableContainer>
@@ -187,7 +204,7 @@ export default function ERC20Table() {
       <CardFooter>
         <HStack>
           <Text color="gray.400" whiteSpace="nowrap">
-            Show rows:{" "}
+            Show rows:{' '}
           </Text>
           <Select size="sm" defaultValue={30}>
             <option value={10}>10</option>

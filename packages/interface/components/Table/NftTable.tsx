@@ -1,6 +1,7 @@
-import { Link } from "@chakra-ui/next-js";
+import { Link } from '@chakra-ui/next-js';
 import {
   Avatar,
+  Box,
   Button,
   CardBody,
   CardFooter,
@@ -16,43 +17,48 @@ import {
   Thead,
   Tr,
   useDisclosure,
-} from "@chakra-ui/react";
-import { FaRegFileAlt, FaUnlink } from "react-icons/fa";
-import { useEffect, useState } from "react";
-import { Approval } from "@app/types";
-import { useSearchParams } from "next/navigation";
-import { isAddress } from "@ethersproject/address";
-import { Tooltip } from "../Tooltip";
-import { useWeb3React } from "@web3-react/core";
-import { formateDate } from "@app/utils";
-import { useExplorer } from "@app/hooks";
-import RevokeModal from "../RevokeModal";
+} from '@chakra-ui/react';
+import { FaRegFileAlt, FaUnlink } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { Approval } from '@app/types';
+import { useSearchParams } from 'next/navigation';
+import { isAddress } from '@ethersproject/address';
+import { Tooltip } from '../Tooltip';
+import { useWeb3React } from '@web3-react/core';
+import { formateDate } from '@app/utils';
+import { useExplorer } from '@app/hooks';
+import RevokeModal from '../RevokeModal';
 
 export default function NftTable() {
   const searchParams = useSearchParams();
-  const type = Number(searchParams.get("type"));
-  const search = String(searchParams.get("search"));
+  const type = Number(searchParams.get('type'));
+  const search = String(searchParams.get('search'));
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [revoke, setRevoke] = useState<Approval | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { account } = useWeb3React();
   const { getExplorerUrl } = useExplorer();
 
   useEffect(() => {
     const request = async () => {
       if (type && isAddress(search)) {
+        setIsLoading(true);
         const res = await fetch(`/api?type=${type}&search=${search}`);
         const result = await res.json();
 
         if (result.data) {
           setApprovals(result.data);
         }
+        setIsLoading(false);
       }
     };
 
     request();
   }, [search, type]);
+
+  const noRecords = approvals.length === 0 && !isLoading;
 
   return (
     <>
@@ -89,8 +95,8 @@ export default function NftTable() {
                     <Td>
                       <Link
                         href={getExplorerUrl(
-                          "account",
-                          approval.contractAddress
+                          'account',
+                          approval.contractAddress,
                         )}
                         target="_blank"
                         textDecoration="none !important"
@@ -110,7 +116,7 @@ export default function NftTable() {
                     </Td>
                     <Td>
                       <Link
-                        href={getExplorerUrl("account", approval.spender)}
+                        href={getExplorerUrl('account', approval.spender)}
                         target="_blank"
                         textDecoration="none !important"
                       >
@@ -127,7 +133,7 @@ export default function NftTable() {
                     </Td>
                     <Td>
                       <Link
-                        href={getExplorerUrl("tx", approval.transactionHash)}
+                        href={getExplorerUrl('tx', approval.transactionHash)}
                         target="_blank"
                         textDecoration="none !important"
                       >
@@ -156,6 +162,17 @@ export default function NftTable() {
                   </Tr>
                 );
               })}
+              {noRecords && (
+                <Tr>
+                  <Td colSpan={6}>
+                    <Box bg="yellow.800" py="0.5rem">
+                      <Text textAlign="center" fontWeight={500}>
+                        No NFT Approvals found for address
+                      </Text>
+                    </Box>
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
           </Table>
         </TableContainer>
@@ -163,7 +180,7 @@ export default function NftTable() {
       <CardFooter>
         <HStack>
           <Text color="gray.400" whiteSpace="nowrap">
-            Show rows:{" "}
+            Show rows:{' '}
           </Text>
           <Select size="sm" defaultValue={30}>
             <option value={10}>10</option>

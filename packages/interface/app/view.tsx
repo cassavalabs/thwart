@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import { Web3Status } from "@app/components/Web3Status";
-import { Image, Link } from "@chakra-ui/next-js";
+import { Web3Status } from '@app/components/Web3Status';
 import {
   Box,
   Button,
@@ -16,60 +15,62 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { isAddress } from "@ethersproject/address";
-import { useEffect, useState } from "react";
-import { BsSearch } from "react-icons/bs";
-import { useWeb3React } from "@web3-react/core";
-import dynamic from "next/dynamic";
-import { useDesiredChain } from "@app/hooks";
-import { Logo } from "@app/components/Logo";
+} from '@chakra-ui/react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { isAddress } from '@ethersproject/address';
+import { useEffect, useState } from 'react';
+import { BsSearch } from 'react-icons/bs';
+import { useWeb3React } from '@web3-react/core';
+import dynamic from 'next/dynamic';
+import { useDesiredChain } from '@app/hooks';
+import { Logo } from '@app/components/Logo';
 
 const Loader = () => {
   return (
-    <HStack w="full" justifyContent="center">
-      <Spinner color="blue.500" boxSize="100px" speed="0.5s" />
-    </HStack>
+    <Box p="2rem">
+      <HStack w="full" justifyContent="center">
+        <Spinner color="blue.500" boxSize="100px" speed="0.5s" />
+      </HStack>
+    </Box>
   );
 };
 
-const AuthzTable = dynamic(() => import("@app/components/Table/AuthzTable"), {
+const AuthzTable = dynamic(() => import('@app/components/Table/AuthzTable'), {
   ssr: false,
   loading: () => <Loader />,
 }) as any;
-const ERC20Table = dynamic(() => import("@app/components/Table/ERC20Table"), {
+const ERC20Table = dynamic(() => import('@app/components/Table/ERC20Table'), {
   ssr: false,
   loading: () => <Loader />,
 }) as any;
-const GAuthzTable = dynamic(() => import("@app/components/Table/GAuthzTable"), {
+const GAuthzTable = dynamic(() => import('@app/components/Table/GAuthzTable'), {
   ssr: false,
   loading: () => <Loader />,
 }) as any;
-const NftTable = dynamic(() => import("@app/components/Table/NftTable"), {
+const NftTable = dynamic(() => import('@app/components/Table/NftTable'), {
   ssr: false,
   loading: () => <Loader />,
 }) as any;
 
 export default function HomeView() {
   useDesiredChain();
-  const [search, setSearch] = useState<string>("");
+  const [search, setSearch] = useState<string>('');
   const { account } = useWeb3React();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const type = parseInt(searchParams.get("type") ?? "");
+  const type = parseInt(searchParams.get('type') ?? '');
   const urlSearchParams = new URLSearchParams(searchParams.toString());
 
   const setType = (type: string) => {
-    urlSearchParams.set("type", type);
+    urlSearchParams.set('type', type);
     router.push(`${pathname}?${urlSearchParams.toString()}`);
   };
 
   const submitSearch = () => {
     if (!isAddress(search)) return;
 
-    urlSearchParams.set("search", search);
+    urlSearchParams.set('search', search);
     router.push(`${pathname}?${urlSearchParams.toString()}`);
   };
 
@@ -114,33 +115,33 @@ export default function HomeView() {
       <Flex w="full" flexDirection="column">
         <Web3Status />
         <Box my="1.5rem">
-          <Card variant="outline" borderRadius="xl">
+          <Card variant="outline" borderRadius="xl" minH="16rem">
             <CardHeader>
               <HStack>
                 <Button
                   variant="secondary"
-                  onClick={() => setType("1")}
+                  onClick={() => setType('1')}
                   isActive={type === 1}
                 >
                   AuthZ
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setType("3")}
+                  onClick={() => setType('3')}
                   isActive={type === 3}
                 >
                   ERC-20
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setType("2")}
+                  onClick={() => setType('2')}
                   isActive={type === 2}
                 >
                   G-AuthZ
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setType("4")}
+                  onClick={() => setType('4')}
                   isActive={type === 4}
                 >
                   NFT
@@ -156,7 +157,7 @@ export default function HomeView() {
             ) : type === 4 ? (
               <NftTable />
             ) : (
-              ""
+              ''
             )}
           </Card>
         </Box>

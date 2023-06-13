@@ -3,10 +3,11 @@ import {
   extendTheme,
   type ThemeConfig,
 } from "@chakra-ui/react";
+import { mode, Styles } from "@chakra-ui/theme-tools";
 
 const config: ThemeConfig = {
   initialColorMode: "dark",
-  useSystemColorMode: true,
+  useSystemColorMode: false,
 };
 
 const colors = {
@@ -72,4 +73,13 @@ const components = {
   Text,
 };
 
-export const theme = extendTheme({ colors, config, components });
+const styles: Styles = {
+  global: (props) => ({
+    body: {
+      bg: mode("grey.50", "gray.800 !important")(props),
+      // color: mode("whiteAlpha.50", "white !important")(props),
+    },
+  }),
+};
+
+export const theme = extendTheme({ colors, config, components, styles });
