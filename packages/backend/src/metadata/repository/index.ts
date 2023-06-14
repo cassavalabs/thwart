@@ -8,7 +8,7 @@ export class MetadataRepository {
   protected readonly logger = new Logger(MetadataRepository.name);
 
   constructor(
-    @InjectModel(Metadata.name) private model: Model<MetadataDocument>,
+    @InjectModel(Metadata.name) private model: Model<MetadataDocument>
   ) {}
 
   async findOne(filterQuery?: FilterQuery<Metadata>): Promise<Metadata> {
@@ -17,7 +17,7 @@ export class MetadataRepository {
 
   async upsert(
     filterQuery: FilterQuery<Metadata>,
-    document: Partial<Metadata>,
+    document: Partial<Metadata>
   ): Promise<Metadata> {
     return this.model.findOneAndUpdate(filterQuery, document, {
       lean: true,

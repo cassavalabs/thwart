@@ -27,4 +27,17 @@ Once users have revoked an authorization, allowance or approval, the dApp or spe
 
 ## How We Built It
 
+We have developed a custom backend using NestJS that enables us to retrieve all events relevant to the topics of our interest. These events are then filtered and stored in a MongoDB database. Subsequently, we serve this data through a straightforward HTTP API.
+
+Initially, we considered utilizing Subquery for our backend implementation. However, we encountered performance issues with Subquery as it was not efficient in utilizing public RPC nodes. The process of fetching transactions and logs starting from the genesis block proved to be slow and lacked gracefulness. Consequently, we opted for an alternative approach.
+
+Instead, we leveraged the EVM's `eth_getLogs` RPC endpoint to filter events based on the specific topics we were interested in. We retrieved the logs in batches of 10,000 blocks, gradually reducing the batch size if errors occurred due to an excessive number of results. This method significantly improved efficiency compared to Subquery.
+
+However, this approach presented another challenge: the logs retrieved through `eth_getLogs` did not include the timestamp of the corresponding event block, which we required. To address this issue, we implemented a cron job that periodically scans our database for data rows with null timestamps. The job groups these rows based on unique block numbers, retrieves the corresponding blocks using the `eth_getBlockByNumber` RPC endpoint, and performs a bulk update to add the missing timestamps.
+
+By adopting this approach, we have successfully operated using public node infrastructure for the time being. However, our plan is to transition to utilizing the Subquery indexer in our production environment.
+
 ## Experience Developing On EVMOS
+Building on the EVMOS blockchain has been an exciting journey. We have encountered numerous opportunities and challenges while developing our project. However, during the testing phase, we realized the importance of having a broader network of public test RPC nodes for a seamless testing experience.
+
+At present, chainlist.org provides a valuable resource for discovering EVM compatible chain configs. However, it appears that only one public RPC testnet is currently available for EVMOS. This limitation poses certain constraints on our testing process.

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Approval, ApprovalDocument } from '../schema';
+import { Approval, ApprovalDocument, ApprovalPaginateModel } from '../schema';
 import { FilterQuery, Model } from 'mongoose';
 import { BulkWriteOptions } from 'mongodb';
 import { ApprovalKind } from 'src/types';
@@ -10,7 +10,7 @@ export class ApprovalRepository {
   protected readonly logger = new Logger(ApprovalRepository.name);
 
   constructor(
-    @InjectModel(Approval.name) private model: Model<ApprovalDocument>,
+    @InjectModel(Approval.name) private model: Model<ApprovalDocument>
   ) {}
 
   async findOne(filterQuery: FilterQuery<Approval>): Promise<Approval> {
@@ -23,6 +23,21 @@ export class ApprovalRepository {
 
   async findWithAccounts(filter: FilterQuery<Approval>) {
     return this.model.find(filter).populate(['contract', 'operator']);
+  }
+
+  async findWithPagination(
+    filter: FilterQuery<Approval>,
+    offset: number,
+    limit: number
+  ) {
+    const dynamicModel = this.model as ApprovalPaginateModel<ApprovalDocument>;
+
+    return dynamicModel.paginate(filter, {
+      offset,
+      limit,
+      populate: ['contract', 'operator'],
+      lean: true,
+    });
   }
 
   async findOneLatest(): Promise<Approval> {
@@ -58,7 +73,7 @@ export class ApprovalRepository {
   }
 
   async updateApprovalInfo(
-    documents: Pick<Approval, 'contractAddress' | 'isUpdated'>[],
+    documents: Pick<Approval, 'contractAddress' | 'isUpdated'>[]
   ) {
     return this.model.bulkWrite(
       documents.map((document) => ({
@@ -67,12 +82,12 @@ export class ApprovalRepository {
           update: document,
           upsert: false,
         },
-      })),
+      }))
     );
   }
 
   async updateApprovalDates(
-    documents: Pick<Approval, 'blockNumber' | 'dateApproved'>[],
+    documents: Pick<Approval, 'blockNumber' | 'dateApproved'>[]
   ) {
     return this.model.bulkWrite(
       documents.map((document) => ({
@@ -81,14 +96,14 @@ export class ApprovalRepository {
           update: document,
           upsert: false,
         },
-      })),
+      }))
     );
   }
 
   async bulkUpsert(
     documents: Partial<Approval>[],
     upsert: boolean,
-    options?: BulkWriteOptions,
+    options?: BulkWriteOptions
   ) {
     return this.model.bulkWrite(
       documents.map((document) => ({
@@ -102,7 +117,7 @@ export class ApprovalRepository {
           upsert,
         },
       })),
-      options,
+      options
     );
   }
 }

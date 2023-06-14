@@ -3,10 +3,12 @@ import {
   Avatar,
   Box,
   Button,
+  ButtonGroup,
   CardBody,
   CardFooter,
   HStack,
   Icon,
+  IconButton,
   Select,
   Table,
   TableContainer,
@@ -18,10 +20,15 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FaRegFileAlt, FaUnlink } from 'react-icons/fa';
+import {
+  FaRegFileAlt,
+  FaUnlink,
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+} from 'react-icons/fa';
 import { useEffect, useState } from 'react';
-import { Approval } from '@app/types';
-import { useSearchParams } from 'next/navigation';
+import { ApiResponse, Approval } from '@app/types';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { isAddress } from '@ethersproject/address';
 import { formatUnits } from '@ethersproject/units';
 import { Tooltip } from '../Tooltip';
@@ -34,8 +41,13 @@ export default function ERC20Table() {
   const searchParams = useSearchParams();
   const type = Number(searchParams.get('type'));
   const search = String(searchParams.get('search'));
+  const page = searchParams.get('page');
+  const limit = searchParams.get('limit');
+  const router = useRouter();
+  const pathname = usePathname();
+  const urlSearchParams = new URLSearchParams(searchParams.toString());
 
-  const [approvals, setApprovals] = useState<Approval[]>([]);
+  const [approvals, setApprovals] = useState<ApiResponse | null>(null);
   const [revoke, setRevoke] = useState<Approval | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -46,7 +58,11 @@ export default function ERC20Table() {
     const request = async () => {
       if (type && isAddress(search)) {
         setIsLoading(true);
-        const res = await fetch(`/api?type=${type}&search=${search}`);
+        const withPage = page ? `&page=${page}` : '';
+        const withPageSize = limit ? `&limit=${limit}` : '';
+        const res = await fetch(
+          `/api?type=${type}&search=${search}${withPage}${withPageSize}`
+        );
         const result = await res.json();
 
         if (result.data) {
@@ -57,15 +73,26 @@ export default function ERC20Table() {
     };
 
     request();
-  }, [search, type]);
+  }, [search, type, limit, page]);
 
-  const noRecords = approvals.length === 0 && !isLoading;
+  const noRecords = approvals && approvals.docs.length === 0 && !isLoading;
+
+  const handlePageNav = (page?: number | null) => {
+    if (!page) return;
+    urlSearchParams.set('page', page.toString());
+    router.push(`${pathname}?${urlSearchParams.toString()}`);
+  };
+
+  const handlePageSize = (limit: string) => {
+    urlSearchParams.set('limit', limit);
+    router.push(`${pathname}?${urlSearchParams.toString()}`);
+  };
 
   return (
     <>
       <CardBody>
         <Text mb="1rem">
-          A total of {approvals?.length} Token approvals found
+          A total of {approvals?.totalDocs ?? 0} Token approvals found
         </Text>
         <TableContainer>
           <Table variant="simple">
@@ -80,7 +107,7 @@ export default function ERC20Table() {
               </Tr>
             </Thead>
             <Tbody>
-              {approvals?.map(({ contract, operator, ...approval }) => {
+              {approvals?.docs.map(({ contract, operator, ...approval }) => {
                 const name = contract?.name || approval.contractAddress;
                 const symbol = contract?.symbol || '';
                 const spender = operator?.name || approval.spender;
@@ -103,7 +130,7 @@ export default function ERC20Table() {
                       <Link
                         href={getExplorerUrl(
                           'account',
-                          approval.contractAddress,
+                          approval.contractAddress
                         )}
                         target="_blank"
                         textDecoration="none !important"
@@ -141,7 +168,7 @@ export default function ERC20Table() {
                         <Link
                           href={getExplorerUrl(
                             'account',
-                            approval.contractAddress,
+                            approval.contractAddress
                           )}
                           target="_blank"
                           textDecoration="none !important"
@@ -201,20 +228,41 @@ export default function ERC20Table() {
           </Table>
         </TableContainer>
       </CardBody>
-      <CardFooter>
+      <CardFooter
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
         <HStack>
           <Text color="gray.400" whiteSpace="nowrap">
             Show rows:{' '}
           </Text>
-          <Select size="sm" defaultValue={30}>
+          <Select
+            size="sm"
+            defaultValue={20}
+            onChange={(e) => handlePageSize(e.target.value)}
+          >
             <option value={10}>10</option>
             <option value={20}>20</option>
             <option value={30}>30</option>
             <option value={40}>40</option>
             <option value={50}>50</option>
-            <option value={100}>100</option>
           </Select>
         </HStack>
+        <ButtonGroup>
+          <IconButton
+            icon={<FaAngleDoubleLeft />}
+            aria-label="prev button"
+            isDisabled={!approvals?.hasPrevPage}
+            onClick={() => handlePageNav(approvals?.prevPage)}
+          />
+          <IconButton
+            icon={<FaAngleDoubleRight />}
+            aria-label="prev button"
+            isDisabled={!approvals?.hasNextPage}
+            onClick={() => handlePageNav(approvals?.nextPage)}
+          />
+        </ButtonGroup>
       </CardFooter>
       <RevokeModal isOpen={isOpen} onClose={onClose} approval={revoke!} />
     </>

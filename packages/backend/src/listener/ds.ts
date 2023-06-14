@@ -72,6 +72,6 @@ export const getDataSources = (filter?: string[]) => {
   if (!filter) return dataSources;
 
   return dataSources.filter(({ subKind }) =>
-    filter.some((e) => subKind.startsWith(e)),
+    filter.some((e) => subKind.startsWith(e))
   );
 };

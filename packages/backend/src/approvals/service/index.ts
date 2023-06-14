@@ -11,19 +11,19 @@ export class ApprovalService {
   async saveApprovals(
     approvals: Approval[],
     upsert: boolean,
-    options?: BulkWriteOptions,
+    options?: BulkWriteOptions
   ) {
     return this.approvalRepository.bulkUpsert(approvals, upsert, options);
   }
 
   async saveApprovalDates(
-    updates: Pick<Approval, 'blockNumber' | 'dateApproved'>[],
+    updates: Pick<Approval, 'blockNumber' | 'dateApproved'>[]
   ) {
     return this.approvalRepository.updateApprovalDates(updates);
   }
 
   async saveApprovalInfos(
-    updates: Pick<Approval, 'contractAddress' | 'isUpdated'>[],
+    updates: Pick<Approval, 'contractAddress' | 'isUpdated'>[]
   ) {
     return this.approvalRepository.updateApprovalInfo(updates);
   }
@@ -39,7 +39,7 @@ export class ApprovalService {
     return this.approvalRepository.find(query);
   }
 
-  async findAuthzApprovals(account: string) {
+  async findAuthzApprovals(account: string, offset: number, limit: number) {
     const query = {
       $or: [
         { owner: account },
@@ -48,13 +48,17 @@ export class ApprovalService {
       ],
     };
 
-    return this.approvalRepository.findWithAccounts({
-      approvalKind: ApprovalKind.AUTHORIZATION,
-      ...query,
-    });
+    return this.approvalRepository.findWithPagination(
+      {
+        approvalKind: ApprovalKind.AUTHORIZATION,
+        ...query,
+      },
+      offset,
+      limit
+    );
   }
 
-  async findGAuthzApprovals(account: string) {
+  async findGAuthzApprovals(account: string, offset: number, limit: number) {
     const query = {
       $nor: [
         { owner: account },
@@ -63,13 +67,17 @@ export class ApprovalService {
       ],
     };
 
-    return this.approvalRepository.findWithAccounts({
-      approvalKind: ApprovalKind.GENERIC_AUTH,
-      ...query,
-    });
+    return this.approvalRepository.findWithPagination(
+      {
+        approvalKind: ApprovalKind.GENERIC_AUTH,
+        ...query,
+      },
+      offset,
+      limit
+    );
   }
 
-  async findERC20Approvals(account: string) {
+  async findERC20Approvals(account: string, offset: number, limit: number) {
     const query = {
       $or: [
         { owner: account },
@@ -78,13 +86,17 @@ export class ApprovalService {
       ],
     };
 
-    return this.approvalRepository.findWithAccounts({
-      approvalKind: ApprovalKind.ERC20,
-      ...query,
-    });
+    return this.approvalRepository.findWithPagination(
+      {
+        approvalKind: ApprovalKind.ERC20,
+        ...query,
+      },
+      offset,
+      limit
+    );
   }
 
-  async findNftApprovals(account: string) {
+  async findNftApprovals(account: string, offset: number, limit: number) {
     const query = {
       $or: [
         { owner: account },
@@ -93,10 +105,14 @@ export class ApprovalService {
       ],
     };
 
-    return this.approvalRepository.findWithAccounts({
-      approvalKind: ApprovalKind.NFT,
-      ...query,
-    });
+    return this.approvalRepository.findWithPagination(
+      {
+        approvalKind: ApprovalKind.NFT,
+        ...query,
+      },
+      offset,
+      limit
+    );
   }
 
   async getUniqueContracts() {

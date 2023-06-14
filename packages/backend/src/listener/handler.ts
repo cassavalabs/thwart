@@ -3,7 +3,7 @@ import { ApprovalKind, EventStore, FilteredEvent } from 'src/types';
 export class DsHandler {
   public static async authzHandler(
     events: FilteredEvent[],
-    store: EventStore,
+    store: EventStore
   ): Promise<void> {
     for (const { abi, log, subKind } of events) {
       switch (subKind) {
@@ -50,7 +50,7 @@ export class DsHandler {
 
   public static async genericAuthzHandler(
     events: FilteredEvent[],
-    store: EventStore,
+    store: EventStore
   ): Promise<void> {
     for (const { abi, log, subKind } of events) {
       switch (subKind) {
@@ -78,7 +78,7 @@ export class DsHandler {
 
   public static async erc20Handler(
     events: FilteredEvent[],
-    store: EventStore,
+    store: EventStore
   ): Promise<void> {
     for (const { abi, log, subKind } of events) {
       switch (subKind) {
@@ -105,7 +105,7 @@ export class DsHandler {
 
   public static async nftHandler(
     events: FilteredEvent[],
-    store: EventStore,
+    store: EventStore
   ): Promise<void> {
     for (const { abi, log, subKind } of events) {
       switch (subKind) {

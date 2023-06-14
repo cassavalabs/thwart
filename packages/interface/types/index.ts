@@ -1,12 +1,12 @@
-import type { Web3ReactHooks } from "@web3-react/core";
-import type { Connector } from "@web3-react/types";
+import type { Web3ReactHooks } from '@web3-react/core';
+import type { Connector } from '@web3-react/types';
 
 export enum ConnectionType {
-  COINBASEWALLET = "COINBASEWALLET",
-  METAMASK = "METAMASK",
-  NETWORK = "NETWORK",
-  TRUSTWALLET = "TRUSTWALLET",
-  WALLETCONNECT = "WALLETCONNECT",
+  COINBASEWALLET = 'COINBASEWALLET',
+  METAMASK = 'METAMASK',
+  NETWORK = 'NETWORK',
+  TRUSTWALLET = 'TRUSTWALLET',
+  WALLETCONNECT = 'WALLETCONNECT',
 }
 
 export interface BaseChainInfo {
@@ -37,10 +37,10 @@ export interface Connection {
 }
 
 export enum ApprovalKind {
-  AUTHORIZATION = "AUTHZ",
-  ERC20 = "ERC20",
-  NFT = "NFT",
-  GENERIC_AUTH = "G_AUTHZ",
+  AUTHORIZATION = 'AUTHZ',
+  ERC20 = 'ERC20',
+  NFT = 'NFT',
+  GENERIC_AUTH = 'G_AUTHZ',
 }
 
 export interface Approval {
@@ -67,4 +67,18 @@ export interface Account {
   logo?: string;
   name?: string;
   symbol?: string;
+}
+
+export interface ApiResponse {
+  docs: Approval[];
+  totalDocs: number;
+  offset: number;
+  limit: number;
+  totalPages: number;
+  page: number;
+  pagingCounter: number;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+  prevPage: number | null;
+  nextPage: number | null;
 }

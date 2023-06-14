@@ -9,7 +9,7 @@ export class AccountRepository {
   protected readonly logger = new Logger(AccountRepository.name);
 
   constructor(
-    @InjectModel(Account.name) private model: Model<AccountDocument>,
+    @InjectModel(Account.name) private model: Model<AccountDocument>
   ) {}
 
   async findOne(filterQuery: FilterQuery<Account>): Promise<Account> {
@@ -29,7 +29,7 @@ export class AccountRepository {
   async bulkUpsert(
     documents: Account[],
     upsert: boolean,
-    options?: BulkWriteOptions,
+    options?: BulkWriteOptions
   ) {
     return this.model.bulkWrite(
       documents.map((document) => ({
@@ -39,7 +39,7 @@ export class AccountRepository {
           upsert,
         },
       })),
-      options,
+      options
     );
   }
 }

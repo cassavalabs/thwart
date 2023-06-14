@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, PaginateModel } from 'mongoose';
+import paginate from 'mongoose-paginate-v2';
 import { ApprovalKind } from 'src/types';
 
 @Schema({
@@ -50,6 +51,7 @@ export class Approval {
 
 export const ApprovalSchema = SchemaFactory.createForClass(Approval);
 export type ApprovalDocument = Approval & Document;
+export type ApprovalPaginateModel<T extends Document> = PaginateModel<T>;
 
 ApprovalSchema.virtual('contract', {
   ref: 'Account',
@@ -64,3 +66,5 @@ ApprovalSchema.virtual('operator', {
   foreignField: 'account',
   justOne: true,
 });
+
+ApprovalSchema.plugin(paginate);

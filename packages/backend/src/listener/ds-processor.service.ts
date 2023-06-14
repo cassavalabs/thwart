@@ -37,7 +37,7 @@ export class DsProcessorService {
     private approvalService: ApprovalService,
     private metadataService: MetadataService,
     private accountService: AccountService,
-    private config: ConfigService,
+    private config: ConfigService
   ) {
     this.batchSize = BLOCK_BATCH;
     this.blockNumbers = [];
@@ -49,7 +49,7 @@ export class DsProcessorService {
     {
       chainId: Number(this.config.get<number>('CHAIN_ID')),
       name: this.config.get<string>('CHAIN_NAME'),
-    },
+    }
   );
 
   provider = new JsonRpcProvider(this.config.get<string>('HTTP_RPC_URL'), {
@@ -78,7 +78,7 @@ export class DsProcessorService {
   }
 
   async sortEventsByKind(
-    events: FilteredEvent[],
+    events: FilteredEvent[]
   ): Promise<FilteredEventBatch[]> {
     const kindToEvents = new Map<EventKind, FilteredEvent[]>();
 
@@ -121,7 +121,7 @@ export class DsProcessorService {
           const handler = this.getDsHandler(event.kind);
           await handler(event.data, eventStore);
         }
-      }),
+      })
     );
 
     return eventStore;
@@ -179,7 +179,7 @@ export class DsProcessorService {
     for (const log of logs) {
       const dataSource = dataSources.find(
         ({ numTopics, topic }) =>
-          numTopics === log.topics.length && topic === log.topics[0],
+          numTopics === log.topics.length && topic === log.topics[0]
       );
 
       if (dataSource) {
@@ -194,7 +194,7 @@ export class DsProcessorService {
 
     if (filteredEvents.length > 0) {
       this.logger.log(
-        `Indexing ${filteredEvents.length} events from ${fromBlock} to ${toBlock}`,
+        `Indexing ${filteredEvents.length} events from ${fromBlock} to ${toBlock}`
       );
 
       const eventBatch = await this.sortEventsByKind(filteredEvents);
@@ -251,7 +251,7 @@ export class DsProcessorService {
   async resetBatchSize() {
     if (this.batchSize < BLOCK_BATCH) {
       this.logger.log(
-        `Resetting batch size from ${this.batchSize} to ${BLOCK_BATCH}`,
+        `Resetting batch size from ${this.batchSize} to ${BLOCK_BATCH}`
       );
       this.batchSize = BLOCK_BATCH;
     }
@@ -270,11 +270,11 @@ export class DsProcessorService {
           attempt <= maxRetry
         ) {
           this.batchSize = Math.floor(
-            (BLOCK_BATCH / 50) * attempt > 0 ? attempt : 1,
+            (BLOCK_BATCH / 50) * attempt > 0 ? attempt : 1
           );
 
           this.logger.warn(
-            `Retrying after 2 seconds, tried ${attempt++} times`,
+            `Retrying after 2 seconds, tried ${attempt++} times`
           );
 
           await this.delay(2);
@@ -307,7 +307,7 @@ export class DsProcessorService {
       const blocks = await Promise.all(
         blocksToFetch.map(async (blockNumber) => {
           return await this.staticProvider.getBlock(blockNumber);
-        }),
+        })
       );
 
       // this.logger.log(`${this.blockNumbers.length} left to fetch`);
@@ -337,7 +337,7 @@ export class DsProcessorService {
     const accounts = await this.accountService.findAccounts(batch);
 
     const newContracts = batch.filter((contract) =>
-      accounts.some((account) => account.account != contract),
+      accounts.some((account) => account.account != contract)
     );
 
     if (newContracts.length > 0) {
@@ -386,7 +386,7 @@ export class DsProcessorService {
           updates.map((update) => ({
             contractAddress: update.account,
             isUpdated: true,
-          })),
+          }))
         );
         this.logger.log(`Updated ${updates.length} token infos`);
       }

@@ -10,7 +10,7 @@ export class AccountService {
   async saveAccounts(
     accounts: Account[],
     upsert: boolean,
-    options?: BulkWriteOptions,
+    options?: BulkWriteOptions
   ) {
     return this.accountRepository.bulkUpsert(accounts, upsert, options);
   }

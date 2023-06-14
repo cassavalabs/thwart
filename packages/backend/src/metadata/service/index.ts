@@ -9,7 +9,7 @@ export class MetadataService {
   async saveMetadata(metadata: Metadata) {
     return this.metadataRepository.upsert(
       { blockchain: metadata.blockchain },
-      metadata,
+      metadata
     );
   }
 
