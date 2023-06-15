@@ -26,4 +26,6 @@ export async function GET(request: Request) {
   const data = await res.json();
   const response = NextResponse.json({ data });
   response.headers.append('Access-Control-Allow-Origin', '*');
+
+  return response;
 }
