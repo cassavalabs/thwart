@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { FaRegFileAlt, FaUnlink } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
-import { Approval } from '@app/types';
+import { ApiResponse, Approval } from '@app/types';
 import { useSearchParams } from 'next/navigation';
 import { isAddress } from '@ethersproject/address';
 import { Tooltip } from '../Tooltip';
@@ -35,7 +35,7 @@ export default function GAuthzTable() {
   const search = String(searchParams.get('search'));
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [approvals, setApprovals] = useState<Approval[]>([]);
+  const [approvals, setApprovals] = useState<ApiResponse | null>(null);
   const [revoke, setRevoke] = useState<Approval | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { account } = useWeb3React();
@@ -58,13 +58,15 @@ export default function GAuthzTable() {
     request();
   }, [search, type]);
 
-  const noRecords = approvals.length === 0 && !isLoading;
+  const noRecords =
+    (approvals && approvals.docs.length === 0 && !isLoading) || !approvals;
 
   return (
     <>
       <CardBody>
         <Text mb="1rem">
-          A total of {approvals?.length} dApp Generic Authorizations found
+          A total of {approvals?.totalDocs ?? 0} dApp Generic Authorizations
+          found
         </Text>
         <TableContainer>
           <Table variant="simple">
@@ -80,7 +82,7 @@ export default function GAuthzTable() {
               </Tr>
             </Thead>
             <Tbody>
-              {approvals.map(({ contract, operator, ...approval }) => {
+              {approvals?.docs?.map(({ contract, operator, ...approval }) => {
                 const name = contract?.name || approval.contractAddress;
                 const spender = operator?.name || approval.spender;
                 const date = approval.dateApproved
@@ -102,7 +104,7 @@ export default function GAuthzTable() {
                       <Link
                         href={getExplorerUrl(
                           'account',
-                          approval.contractAddress,
+                          approval.contractAddress
                         )}
                         target="_blank"
                         textDecoration="none !important"

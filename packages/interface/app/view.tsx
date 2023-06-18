@@ -134,8 +134,9 @@ export default function HomeView() {
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setType('2')}
-                  isActive={type === 2}
+                  // onClick={() => setType('2')}
+                  // isActive={type === 2}
+                  isDisabled={true}
                 >
                   G-AuthZ
                 </Button>
